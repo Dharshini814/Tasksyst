@@ -3,394 +3,290 @@
 <head>
   <title>Task Manager</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
- <style>
-body{
-  font-family:'Segoe UI', sans-serif;
-  background:#f4f6f9;
-  padding:10px;
-  font-size:13px;
-}
-
-.container{
-  max-width:400px;
-  margin:15px auto;
-}
-
-.header{
-  display:flex;
-  align-items:center;
-  gap:12px;
-}
-
-.icon-box{
-  background:#1f3a8a;
-  color:white;
-  padding:12px;
-  border-radius:14px;
-  font-size:18px;
-}
-
-.header h1{
-  margin:0;
-  font-size:20px;
-}
-
-.header p{
-  margin:2px 0 0;
-  font-size:12px;
-}
-
-.stats{
-  display:grid;
-  grid-template-columns: repeat(2,1fr);
-  gap:10px;
-  margin:15px 0;
-}
-
-.stat-card{
-  background:white;
-  padding:7px;
-  border-radius:14px;
-  box-shadow:0 3px 10px rgba(0,0,0,0.08);
-  text-align:center;
-}
-
-.stat-card h2{
-  margin:0;
-  font-size:16px;
-}
-
-.stat-card span{
-  font-size:12px;
-}
-
-.search{
-  width:100%;
-  padding:8px;
-  border-radius:14px;
-  border:none;
-  box-shadow:0 3px 8px rgba(0,0,0,0.08);
-  margin-bottom:12px;
-  font-size:12px;
-}
-
-.new-task{
-  width:23%;
-  background:#1f3a8a;
-  color:white;
-  padding:8px;
-  border-radius:14px;
-  border:none;
-  font-size:12px;
-  margin-bottom:12px;
-}
-
-input, select{
-  padding:6px 8px;
-  border-radius:8px;
-  border:1px solid #ccc;
-  margin:2px auto;
-  font-size:12px;
-  width:55%;
-  box-sizing:border-box;
-}
-
-.filter-section{
-  margin:8px 0;
-}
-
-.filter-section p{
-  margin:4px 0;
-  font-size:12px;
-}
-
-.filter-section button{
-  padding:6px 10px;
-  border-radius:14px;
-  font-size:13px;
-  font-weight:500;
-  margin:4px;
-  border:none;
-}
-
-.filter-section button:not(.reset-btn){
-  background:#e5e7eb;
-}
-
-.reset-btn{
-  background:linear-gradient(45deg,#ff4e50,#f9d423);
-  color:white;
-}
-
-.card{
-  background:white;
-  padding:7px;
-  margin:8px 0;
-  border-radius:14px;
-  box-shadow:0 3px 10px rgba(0,0,0,0.08);
-  font-size:12px;
-}
-
-button{
-  padding:4px 8px;
-  font-size:11px;
-  border:none;
-  border-radius:12px;
-  margin:3px;
-  cursor:pointer;
-}
-
-.edit-btn{
-  background:#f59e0b;
-  color:white;
-}
-
-.delete-btn{
-  background:#ef4444;
-  color:white;
-}
-</style>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family:'Segoe UI', sans-serif;
+      background:#f4f6f9;
+      padding:10px;
+      font-size:13px;
+    }
+    .container { max-width:500px; margin:15px auto; }
+    .header { display:flex; align-items:center; gap:12px; }
+    .icon-box { background:#1f3a8a; color:white; padding:12px; border-radius:14px; font-size:18px; }
+    .header h1 { margin:0; font-size:20px; }
+    .header p { margin:2px 0 0; font-size:12px; }
+    .stats { display:grid; grid-template-columns: repeat(2,1fr); gap:10px; margin:15px 0; }
+    .stat-card { background:white; padding:10px; border-radius:14px; box-shadow:0 3px 10px rgba(0,0,0,0.08); text-align:center; }
+    .stat-card h2 { margin:0; font-size:16px; }
+    .stat-card span { font-size:12px; }
+    .search { width:100%; padding:10px; border-radius:14px; border:none; box-shadow:0 3px 8px rgba(0,0,0,0.08); margin-bottom:12px; font-size:14px; }
+    .new-task { background:#1f3a8a; color:white; padding:10px 15px; border-radius:14px; border:none; font-size:14px; margin:5px; cursor:pointer; }
+    input, select { padding:10px; border-radius:10px; border:1px solid #ccc; margin:5px 0; font-size:14px; width:100%; box-sizing:border-box; }
+    .filter-section{ margin:8px 0; }
+    .filter-section p{ margin:4px 0; font-size:12px; }
+    .filter-section button{ padding:6px 10px; border-radius:14px; font-size:13px; font-weight:500; margin:4px; border:none; cursor:pointer; }
+    .filter-section button:not(.reset-btn){ background:#e5e7eb; }
+    .reset-btn{ background:linear-gradient(45deg,#ff4e50,#f9d423); color:white; }
+    .card{ background:white; padding:10px; margin:8px 0; border-radius:14px; box-shadow:0 3px 10px rgba(0,0,0,0.08); font-size:13px; }
+    button{ padding:6px 12px; font-size:12px; border:none; border-radius:12px; margin:3px; cursor:pointer; }
+    .edit-btn{ background:#f59e0b; color:white; }
+    .delete-btn{ background:#ef4444; color:white; }
+    h3{ margin-top:0; }
+  </style>
 </head>
 <body>
 
+<!-- NAVIGATION -->
+<div style="display:flex; gap:5px; margin-bottom:15px;">
+  <button onclick="showDashboard('main')">Dashboard</button>
+  <button onclick="showDashboard('addTask')">Add Task</button>
+  <button onclick="showDashboard('tasks')">Tasks</button>
+  <button onclick="showDashboard('analytics')">Analytics</button>
+</div>
+
 <div class="container">
 
-  <div class="header">
-    <div class="icon-box">📋</div>
-    <div>
-      <h1>Tasks</h1>
-      <p>Manage your work, stay on track.</p>
+  <!-- MAIN DASHBOARD -->
+  <div id="mainDashboard">
+    <div class="header">
+      <div class="icon-box">📋</div>
+      <div>
+        <h1>Tasks</h1>
+        <p>Manage your work, stay on track.</p>
+      </div>
     </div>
+    <div class="stats">
+      <div class="stat-card"><h2 id="total">0</h2><span>Total</span></div>
+      <div class="stat-card"><h2 id="todo">0</h2><span>To Do</span></div>
+      <div class="stat-card"><h2 id="progress">0</h2><span>In Progress</span></div>
+      <div class="stat-card"><h2 id="done">0</h2><span>Done</span></div>
+      <div class="stat-card"><h2 id="streak">0</h2><span>🔥 Streak</span></div>
+    </div>
+    <div id="aiSuggestion" style="background:#eef2ff;padding:10px;border-radius:10px;margin:10px 0;font-size:12px;font-weight:500;"></div>
   </div>
 
-  <div class="stats">
-    <div class="stat-card">
-      <h2 id="total">0</h2>
-      <span>Total</span>
+  <!-- TASK DASHBOARD -->
+  <div id="taskDashboard" style="display:none;">
+    <input type="text" id="search" placeholder="🔍 Search tasks..." onkeyup="render()" class="search">
+    <div class="filter-section">
+      <p>Status:</p>
+      <button onclick="setStatus('All')">All</button>
+      <button onclick="setStatus('To Do')">To Do</button>
+      <button onclick="setStatus('In Progress')">In Progress</button>
+      <button onclick="setStatus('Done')">Done</button>
     </div>
-
-    <div class="stat-card">
-      <h2 id="todo">0</h2>
-      <span>To Do</span>
+    <div class="filter-section">
+      <p>Priority:</p>
+      <button onclick="setPriority('All')">All</button>
+      <button onclick="setPriority('High')">High</button>
+      <button onclick="setPriority('Medium')">Medium</button>
+      <button onclick="setPriority('Low')">Low</button>
+      <button onclick="resetFilters()" class="reset-btn">Reset</button>
     </div>
-
-    <div class="stat-card">
-      <h2 id="progress">0</h2>
-      <span>In Progress</span>
-    </div>
-
-    <div class="stat-card">
-      <h2 id="done">0</h2>
-      <span>Done</span>
-    </div>
+    <div id="list"></div>
   </div>
 
-  <input type="text" id="search" placeholder="🔍 Search tasks..." onkeyup="render()" class="search">
-
-  <button id="mainBtn" onclick="addTask()" class="new-task">+ New Task</button>
-
-  <div style="margin-bottom:15px;">
-    <input type="text" id="title" placeholder="Task Title">
-
-    <select id="status">
+  <!-- ADD TASK DASHBOARD -->
+  <div id="addTaskDashboard" style="display:none;">
+    <h3>➕ Add Task</h3>
+    <input type="text" id="addTitle" placeholder="Task Title">
+    <select id="addStatus">
       <option>To Do</option>
       <option>In Progress</option>
       <option>Done</option>
     </select>
-
-    <select id="priority">
+    <select id="addPriority">
       <option>High</option>
       <option>Medium</option>
       <option>Low</option>
     </select>
-
-    <input type="🗓️date" id="dueDate">
+    <input type="date" id="addDueDate">
+    <button onclick="addNewTask()" class="new-task">Save Task</button>
+    <button onclick="showDashboard('tasks')" class="new-task">Cancel</button>
   </div>
 
-  <div class="filter-section">
-    <p>Status:</p>
-    <button onclick="setStatus('All')">All</button>
-    <button onclick="setStatus('To Do')">To Do</button>
-    <button onclick="setStatus('In Progress')">In Progress</button>
-    <button onclick="setStatus('Done')">Done</button>
+  <!-- EDIT TASK DASHBOARD -->
+  <div id="editTaskDashboard" style="display:none;">
+    <h3>✏️ Edit Task</h3>
+    <input type="text" id="editTitle" placeholder="Task Title">
+    <select id="editStatus">
+      <option>To Do</option>
+      <option>In Progress</option>
+      <option>Done</option>
+    </select>
+    <select id="editPriority">
+      <option>High</option>
+      <option>Medium</option>
+      <option>Low</option>
+    </select>
+    <input type="date" id="editDueDate">
+    <button onclick="saveEditedTask()" class="new-task">Save Changes</button>
+    <button onclick="showDashboard('tasks')" class="new-task">Cancel</button>
   </div>
 
-  <div class="filter-section">
-    <p>Priority:</p>
-    <button onclick="setPriority('All')">All</button>
-    <button onclick="setPriority('High')">High</button>
-    <button onclick="setPriority('Medium')">Medium</button>
-    <button onclick="setPriority('Low')">Low</button>
-    <button onclick="resetFilters()" class="reset-btn">Reset</button>
-  </div>
-
-  <div id="list"></div>
+ <div id="analyticsDashboard" style="display:none; padding:10px;">
+  <h3>📊 Analytics</h3>
+  
+  <!-- Analytics numbers first -->
+  <div id="analyticsContent" style="margin-bottom:15px;"></div>
+  
+  <!-- Pie chart BELOW analytics numbers -->
+  <canvas id="taskPieChart" width="300" height="300"></canvas>
+</div>
 
 </div>
 
 <script>
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 let currentStatus = "All";
-let currentPriority = "All";  
+let currentPriority = "All";
 let editId = null;
+let streak = parseInt(localStorage.getItem("streak")) || 0;
+let lastCompletedDate = localStorage.getItem("lastCompletedDate") || "";
 
-/* 🔔 Request Notification Permission */
-if ("Notification" in window) {
-  Notification.requestPermission().then(permission => {
-    console.log("Notification permission:", permission);
-  });
-}
-
+// ---------- SAVE & LOAD ----------
 function save(){
   localStorage.setItem("tasks", JSON.stringify(tasks));
+  localStorage.setItem("streak", streak);
+  localStorage.setItem("lastCompletedDate", lastCompletedDate);
 }
 
-function addTask(){
-  let title = document.getElementById("title").value.trim();
-  let status = document.getElementById("status").value;
-  let priority = document.getElementById("priority").value;
-  let dueDate = document.getElementById("dueDate").value;
+// ---------- ADD / EDIT / DELETE ----------
+function addNewTask(){
+  let title = document.getElementById("addTitle").value.trim();
+  let status = document.getElementById("addStatus").value;
+  let priority = document.getElementById("addPriority").value;
+  let dueDate = document.getElementById("addDueDate").value;
+  if(!title) return alert("Enter title");
 
-  if(title==="") return alert("Enter title");
-
-  if(editId === null){
-    tasks.push({id: Date.now(), title, status, priority, dueDate});
-  } else {
-    let task = tasks.find(t => t.id === editId);
-    task.title = title;
-    task.status = status;
-    task.priority = priority;
-    task.dueDate = dueDate;
-    editId = null;
-    document.getElementById("mainBtn").innerText = "+ New Task";
-  }
-
-  document.getElementById("title").value="";
-  document.getElementById("dueDate").value = "";
-  document.getElementById("status").value = "To Do";
-  document.getElementById("priority").value = "High";
-
-  save();
-  render();
+  tasks.push({id: Date.now(), title, status, priority, dueDate: dueDate ? new Date(dueDate+"T00:00:00").toISOString() : ""});
+  document.getElementById("addTitle").value="";
+  document.getElementById("addStatus").value="To Do";
+  document.getElementById("addPriority").value="High";
+  document.getElementById("addDueDate").value="";
+  save(); render();
+  showDashboard('tasks');
 }
 
-function checkDueNotifications(){
-  let today = new Date();
-  today.setHours(0,0,0,0);
-
-  tasks.forEach(task => {
-
-    if(!task.dueDate) return;
-
-    let due = new Date(task.dueDate);
-    due.setHours(0,0,0,0);
-
-    let diffDays = Math.floor((due - today) / (1000 * 60 * 60 * 24));
-
-    if(Notification.permission === "granted"){
-
-      if(diffDays === 1){
-        new Notification("⏰ Task Due Tomorrow!", {
-          body: task.title + " is due tomorrow."
-        });
-      }
-
-      if(diffDays === 0){
-        new Notification("🔔 Task Due Today!", {
-          body: task.title + " is due today."
-        });
-      }
-
-    }
-
-  });
+function editTask(id){
+  editId=id;
+  let t=tasks.find(t=>t.id===id);
+  document.getElementById("editTitle").value=t.title;
+  document.getElementById("editStatus").value=t.status;
+  document.getElementById("editPriority").value=t.priority;
+  document.getElementById("editDueDate").value=t.dueDate?t.dueDate.split("T")[0]:"";
+  showDashboard('editTask');
 }
 
-/* 🔥 Run once immediately */
-checkDueNotifications();
-
-/* 🔁 Then check every 1 minute */
-setInterval(checkDueNotifications, 60000);
-
-function setPriority(priority){
-  currentPriority = priority;
-  render();
-}
-
-function setStatus(status){
-  currentStatus = status;
-  render();
-}
-
-function resetFilters(){
-  currentStatus = "All";
-  currentPriority = "All";
-  document.getElementById("search").value = "";
-  render();
+function saveEditedTask(){
+  let t=tasks.find(t=>t.id===editId);
+  t.title=document.getElementById("editTitle").value.trim();
+  t.status=document.getElementById("editStatus").value;
+  t.priority=document.getElementById("editPriority").value;
+  let d=document.getElementById("editDueDate").value;
+  t.dueDate=d?new Date(d+"T00:00:00").toISOString():"";
+  save(); render(); editId=null; showDashboard('tasks');
 }
 
 function deleteTask(id){
+  // ✅ Ask user for confirmation before deleting
+  if(!confirm("⚠ Are you sure you want to delete this task?")) return;
+
+  // If confirmed, delete the task
   tasks = tasks.filter(t => t.id !== id);
   save();
   render();
 }
 
-function editTask(id){
-  let task = tasks.find(t => t.id === id);
+// ---------- FILTERS ----------
+function setStatus(s){ currentStatus=s; render(); }
+function setPriority(p){ currentPriority=p; render(); }
+function resetFilters(){ currentStatus="All"; currentPriority="All"; document.getElementById("search").value=""; render(); }
 
-  document.getElementById("title").value = task.title;
-  document.getElementById("status").value = task.status;
-  document.getElementById("priority").value = task.priority;
-  document.getElementById("dueDate").value = task.dueDate || "";
-
-  editId = id;
-  document.getElementById("mainBtn").innerText = "Update";
-}
-
+// ---------- RENDER ----------
 function render(){
-  document.getElementById("total").innerText = tasks.length;
-  document.getElementById("todo").innerText =
-    tasks.filter(t=>t.status==="To Do").length;
+  document.getElementById("total").innerText=tasks.length;
+  document.getElementById("todo").innerText=tasks.filter(t=>t.status==="To Do").length;
+  document.getElementById("progress").innerText=tasks.filter(t=>t.status==="In Progress").length;
+  document.getElementById("done").innerText=tasks.filter(t=>t.status==="Done").length;
+  document.getElementById("streak").innerText=streak;
 
-  document.getElementById("progress").innerText =
-    tasks.filter(t=>t.status==="In Progress").length;
-
-  document.getElementById("done").innerText =
-    tasks.filter(t=>t.status==="Done").length;
-
-  let list = document.getElementById("list");
+  let list=document.getElementById("list");
   list.innerHTML="";
+  let searchText=document.getElementById("search")?document.getElementById("search").value.toLowerCase():"";
 
-  let searchText = document.getElementById("search").value.toLowerCase();
-
-  let filtered = tasks.filter(t =>
-    (currentStatus==="All" || t.status===currentStatus) &&
-    (currentPriority==="All" || t.priority===currentPriority) &&
-    t.title.toLowerCase().includes(searchText)
-  );
-
-  filtered.forEach(t=>{
-    let borderColor = "#ccc";
-    if(t.priority === "High") borderColor = "green";
-    if(t.priority === "Medium") borderColor = "orange";
-    if(t.priority === "Low") borderColor = "red";
-
-    list.innerHTML += `
-      <div class="card" style="border-left:6px solid ${borderColor}">
-        <b>${t.title}</b><br>
-        Status: ${t.status} <br>
-        Priority: ${t.priority} <br>
-        Due: ${t.dueDate ? t.dueDate : "No date"} <br><br>
-
+  tasks.filter(t=> (currentStatus==="All"||t.status===currentStatus) && (currentPriority==="All"||t.priority===currentPriority) && t.title.toLowerCase().includes(searchText) ).forEach(t=>{
+    list.innerHTML+=`
+      <div class="card" style="border-left:6px solid ${t.priority==="High"?"green":t.priority==="Medium"?"orange":"red"}">
+        <b>${t.title}</b><br>Status: ${t.status}<br>Priority: ${t.priority}<br>Due: ${t.dueDate?t.dueDate.split("T")[0]:"No date"}<br><br>
         <button class="edit-btn" onclick="editTask(${t.id})">Edit</button>
         <button class="delete-btn" onclick="deleteTask(${t.id})">Delete</button>
       </div>
     `;
+  });
+
+  // AI suggestion
+  let suggestion=document.getElementById("aiSuggestion");
+  if(tasks.length===0) suggestion.innerText="✨ Add a new task and start being productive!";
+  else suggestion.innerText="🚀 Keep going!";
+
+}
+
+// ---------- DASHBOARD SWITCH ----------
+function showDashboard(type){
+  document.getElementById("mainDashboard").style.display="none";
+  document.getElementById("taskDashboard").style.display="none";
+  document.getElementById("analyticsDashboard").style.display="none";
+  document.getElementById("addTaskDashboard").style.display="none";
+  document.getElementById("editTaskDashboard").style.display="none";
+
+  if(type==="main") document.getElementById("mainDashboard").style.display="block";
+  if(type==="tasks") document.getElementById("taskDashboard").style.display="block";
+  if(type==="addTask") document.getElementById("addTaskDashboard").style.display="block";
+  if(type==="editTask") document.getElementById("editTaskDashboard").style.display="block";
+  if(type==="analytics"){document.getElementById("analyticsDashboard").style.display="block"; loadAnalytics();}
+}
+
+// ---------- ANALYTICS / PIE CHART ----------
+function loadAnalytics(){
+  const today = new Date().toISOString().split("T")[0];
+
+  let todoCount = tasks.filter(t=>t.status==="To Do").length;
+  let progressCount = tasks.filter(t=>t.status==="In Progress").length;
+  let doneCount = tasks.filter(t=>t.status==="Done").length;
+
+  let dueTodayCount = tasks.filter(t => t.dueDate && t.dueDate.split("T")[0] === today).length;
+  let overdueCount = tasks.filter(t => t.dueDate && t.dueDate.split("T")[0] < today && t.status !== "Done").length;
+
+  // Analytics numbers
+  document.getElementById("analyticsContent").innerHTML=`
+    <div class="card" style="margin-top:0;">
+      <b>Total Tasks:</b> ${tasks.length}<br>
+      <b>To Do:</b> ${todoCount}<br>
+      <b>In Progress:</b> ${progressCount}<br>
+      <b>Done:</b> ${doneCount}<br>
+      <b>Completion Rate:</b> ${tasks.length===0?0:Math.round((doneCount/tasks.length)*100)}%
+    </div>`;
+
+  // Pie chart below numbers
+  const ctx = document.getElementById('taskPieChart').getContext('2d');
+  if(window.taskChart) window.taskChart.destroy();
+  window.taskChart = new Chart(ctx,{
+    type:'pie',
+    data:{
+      labels:['To Do','In Progress','Done'],
+      datasets:[{
+        data:[todoCount, progressCount, doneCount],
+        backgroundColor:['#f59e0b','#3b82f6','#10b981']
+      }]
+    },
+    options:{ responsive:true, plugins:{ legend:{ position:'bottom' } } }
   });
 }
 
 render();
 </script>
 </body>
-
-</html>
+                                                           </html>
